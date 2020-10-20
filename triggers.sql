@@ -60,3 +60,74 @@ BEGIN
 	DELETE FROM website_privileges;
 END$$
 DELIMITER ;
+
+
+
+
+
+
+
+
+DROP TRIGGER IF EXISTS `heroku_f3d0da64923a25a`.`page_roles_AFTER_INSERT`;
+
+DELIMITER $$
+USE `heroku_f3d0da64923a25a`$$
+CREATE DEFINER=`root`@`localhost` TRIGGER `page_roles_AFTER_INSERT` AFTER INSERT ON `page_roles` FOR EACH ROW
+BEGIN
+  IF NEW.role='admin' OR NEW.role='owner' 
+  THEN INSERT INTO page_privileges VALUES(NEW.developer_id, NEW.page_id, 'create');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+     INSERT INTO page_privileges VALUES(NEW.developer_id, NEW.page_id, 'update');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'delete');
+  END IF;
+  IF NEW.role='writer' THEN
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'create');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'update');
+  END IF;
+  IF NEW.role='editor' THEN
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'update');
+  END IF;
+  IF NEW.role='reviewer' THEN
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+  END IF;
+END$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `heroku_f3d0da64923a25a`.`page_roles_AFTER_UPDATE`;
+
+DELIMITER $$
+USE `heroku_f3d0da64923a25a`$$
+CREATE DEFINER=`root`@`localhost` TRIGGER `page_roles_AFTER_UPDATE` AFTER UPDATE ON `page_roles` FOR EACH ROW
+BEGIN
+	DELETE FROM page_privileges;
+  IF NEW.role='admin' OR NEW.role='owner' 
+  THEN INSERT INTO page_privileges VALUES(NEW.developer_id, NEW.page_id, 'create');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+     INSERT INTO page_privileges VALUES(NEW.developer_id, NEW.page_id, 'update');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'delete');
+  END IF;
+  IF NEW.role='writer' THEN
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'create');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'update');
+  END IF;
+  IF NEW.role='editor' THEN
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'update');
+  END IF;
+  IF NEW.role='reviewer' THEN
+     INSERT INTO page_privileges VALUES (NEW.developer_id, NEW.page_id, 'read');
+  END IF;
+END$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `heroku_f3d0da64923a25a`.`page_roles_AFTER_DELETE`;
+
+DELIMITER $$
+USE `heroku_f3d0da64923a25a`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `heroku_f3d0da64923a25a`.`page_roles_AFTER_DELETE` AFTER DELETE ON `page_roles` FOR EACH ROW
+BEGIN
+	DELETE FROM page_privileges;
+END$$
+DELIMITER ;
+
